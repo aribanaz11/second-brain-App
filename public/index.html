@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second Brain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .view { display: none; }
+        .view.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold flex items-center gap-2 cursor-pointer" onclick="navigate('home')">
+                <i class="fa-solid fa-brain"></i> Second Brain
+            </div>
+            <div id="nav-actions" class="flex gap-4 items-center">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 transform transition-transform translate-x-full bg-gray-800 text-white px-6 py-3 rounded shadow-lg z-50">
+        <span id="toast-msg"></span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full p-4 sm:p-6">
+        
+        <!-- Auth View -->
+        <div id="view-auth" class="view active max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 text-center" id="auth-title">Login to Your Brain</h2>
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+                <input type="text" id="auth-username" placeholder="Username" required class="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500">
+                <input type="password" id="auth-password" placeholder="Password" required class="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded font-semibold hover:bg-indigo-700">Submit</button>
+            </form>
+            <p class="text-center mt-4 text-sm text-gray-600">
+                <span id="auth-switch-text">Don't have an account?</span> 
+                <button onclick="toggleAuthMode()" class="text-indigo-600 font-bold hover:underline" id="auth-switch-btn">Sign Up</button>
+            </p>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">My Knowledge Base</h1>
+                <div class="flex gap-2">
+                    <button onclick="shareBrain()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded font-semibold hover:bg-gray-300"><i class="fa-solid fa-share-nodes"></i> Share Brain</button>
+                    <button onclick="openAddModal()" class="bg-indigo-600 text-white px-4 py-2 rounded font-semibold hover:bg-indigo-700"><i class="fa-solid fa-plus"></i> Add Content</button>
+                </div>
+            </div>
+
+            <div id="content-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Content cards injected via JS -->
+            </div>
+        </div>
+
+        <!-- Shared Brain View -->
+        <div id="view-shared" class="view">
+            <h1 class="text-3xl font-bold mb-6"><span id="shared-username" class="text-indigo-600">Someone</span>'s Second Brain</h1>
+            <div id="shared-content-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Content cards injected via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Add Content Modal -->
+    <div id="addModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Add New Content</h3>
+                <button onclick="closeAddModal()" class="text-gray-500 hover:text-red-500 text-xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="add-content-form" onsubmit="handleAddContent(event)" class="space-y-4">
+                <input type="text" id="content-title" placeholder="Title" required class="w-full border p-2 rounded">
+                <input type="url" id="content-link" placeholder="Link URL (e.g. https://...)" required class="w-full border p-2 rounded">
+                <select id="content-type" class="w-full border p-2 rounded bg-white">
+                    <option value="note">Note / Link</option>
+                    <option value="youtube">YouTube Video</option>
+                    <option value="twitter">Twitter / X Post</option>
+                    <option value="article">Article</option>
+                </select>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded font-semibold">Save to Brain</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Link Modal -->
+    <div id="shareModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md text-center">
+            <h3 class="text-xl font-bold mb-4">Share Your Brain</h3>
+            <p class="mb-4 text-gray-600">Anyone with this link can view your saved content!</p>
+            <input type="text" id="share-link-input" readonly class="w-full border p-2 rounded bg-gray-100 text-center mb-4">
+            <div class="flex justify-center gap-2">
+                <button onclick="copyShareLink()" class="bg-indigo-600 text-white px-4 py-2 rounded">Copy Link</button>
+                <button onclick="disableShare()" class="bg-red-500 text-white px-4 py-2 rounded">Disable Sharing</button>
+            </div>
+            <button onclick="closeShareModal()" class="mt-4 text-gray-500 underline">Close</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
