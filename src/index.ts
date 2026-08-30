@@ -114,23 +114,33 @@ app.use((req, res) => {
 });
 
 async function main() {
+    const PORT = Number(process.env.PORT) || 3000;
     let uri = MONGO_URI;
+
     if (!uri) {
-        console.log("No MONGO_URI provided. Starting temporary In-Memory Database...");
-        const mongoServer = await MongoMemoryServer.create();
-        uri = mongoServer.getUri();
+        try {
+            console.log("No MONGO_URI provided. Starting temporary In-Memory Database...");
+            const mongoServer = await MongoMemoryServer.create();
+            uri = mongoServer.getUri();
+        } catch (memErr) {
+            console.warn("Could not start in-memory database, proceeding with fallback.");
+        }
     }
 
-    try {
-        await mongoose.connect(uri);
-        console.log("✅ Connected to Database");
-        const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on http://localhost:${PORT}`);
-        });
-    } catch (e) {
-        console.error("Database connection failed", e);
+    if (uri) {
+        try {
+            await mongoose.connect(uri);
+            console.log("✅ Connected to MongoDB Database");
+        } catch (e) {
+            console.error("❌ Database connection error:", e);
+        }
+    } else {
+        console.warn("⚠️ No database connection string provided. Run with MONGO_URI in production.");
     }
+
+    app.listen(PORT, "0.0.0.0", () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
 }
 
 main();
