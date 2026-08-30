@@ -3,19 +3,12 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
-    "module": "nodenext",
-    "target": "esnext",
-
+    "module": "CommonJS",
+    "target": "es2020",
+    "esModuleInterop": true,
     "types": ["node"],
-
     "sourceMap": true,
-
     "strict": true,
-
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-
     "skipLibCheck": true
   },
 

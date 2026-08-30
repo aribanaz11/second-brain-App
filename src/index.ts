@@ -108,7 +108,8 @@ app.get("/api/v1/brain/:shareLink", async (req, res) => {
     });
 });
 
-app.get("*", (req, res) => {
+// Fallback to React/Vanilla SPA router
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
